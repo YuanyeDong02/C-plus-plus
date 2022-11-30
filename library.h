@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+using namespace std;
 
 /* The different types of documents stored in the library */
 typedef enum { DOC_NOVEL, DOC_COMIC, DOC_MAGAZINE } DocType;
@@ -20,68 +22,68 @@ public:
   virtual void print() = 0;
 
   /* setters and getters */
-  void updateTitle(const char *newTitle);
+  void updateTitle(const string &newTitle);
   void updateYear(int newYear);
   void updateQuantity(int newQuantity);
-  char *getTitle();
+  string &getTitle();
   int getYear();
   int getQuantity();
 
   /* Used when someone tries to borrow a document, should return 1 on success
    * and 0 on failure */
-  int borrowDoc();
+  bool borrowDoc();
 
   /* Used when someone returns a document */
   void returnDoc();
 
 protected:
   /* These need to be protected to be inherited by the child classes */
-  char *_title;  // document title
-  int _year;     // year of parution
-  int _quantity; // quantity held in the library, should be updated on
+  string _title;  // document title
+  int _year{};     // year of parution
+  int _quantity{}; // quantity held in the library, should be updated on
                  // borrow (-1) and return (+1)
 };
 
 class Novel : public Document {
 public:
-  Novel(const char *title, const char *author, int year, int quantity);
+  Novel(const string &title, const string &author, int year, int quantity);
   ~Novel();
-  DocType getDocType();
-  void print();
+  DocType getDocType() override;
+  void print() override;
 
   /* getters and setters */
-  void updateAuthor(const char *newAuthor);
-  char *getAuthor();
+  void updateAuthor(const string &newAuthor);
+  string &getAuthor();
 
 private:
   /* In addition to the base Document's attributes, a novel has an author */
-  char *_author;
+  string _author;
 };
 
 class Comic : public Document {
 public:
-  Comic(const char *title, const char *author, int issue, int year,
+  Comic(const string &title, const string &author, int issue, int year,
         int quantity);
   ~Comic();
   DocType getDocType();
   void print();
 
   /* getters, setters */
-  void updateAuthor(const char *newAuthor);
+  void updateAuthor(const string &newAuthor);
   void updateIssue(int newIssue);
-  char *getAuthor();
+  string &getAuthor();
   int getIssue();
 
 private:
   /* In addition to the base Document's attributes, a comic has an author as
    * well as an issue number */
-  char *_author;
+  string _author;
   int _issue;
 };
 
 class Magazine : public Document {
 public:
-  Magazine(const char *title, int issue, int year, int quantity);
+  Magazine(const string &title, int issue, int year, int quantity);
   ~Magazine();
   DocType getDocType();
   void print();
@@ -111,27 +113,27 @@ public:
    * <document type>,<title>,<author>,<issue>,<year>,<quantity>
    * A field not relevant for a given document type (e.g. issue for novel)
    * is left blank. Return 1 on success, 0 on failure. */
-  int dumpCSV(const char *filename);
+  bool dumpCSV(const string &filename);
 
   /* search for a document in the library, based on the title. We assume that
    * a title identifies uniquely a document in the library, i.e. there cannot
    * be 2 documents with the same title. Returns a pointer to the document if
    * found, NULL otherwise */
-  Document *searchDocument(const char *title);
+  Document *searchDocument(const string &title);
 
   /* Add/delete a document to/from the library, return 1 on success and
    * 0 on failure.  */
-  int addDocument(DocType t, const char *title, const char *author, int issue,
+  bool addDocument(DocType t, const string &title, const string &author, int issue,
                   int year, int quantity);
-  int addDocument(Document *d);
-  int delDocument(const char *title);
+  bool addDocument(Document *d);
+  bool delDocument(const string &title);
 
   /* Count the number of document of a given type present in the library */
   int countDocumentOfType(DocType t);
 
   /* Borrow/return documents, return 1 on success, 0 on failure */
-  int borrowDoc(const char *title);
-  int returnDoc(const char *title);
+  bool borrowDoc(const string &title);
+  bool returnDoc(const string &title);
 
 private:
   /* Holds all documents in the library */

@@ -142,26 +142,27 @@ bool Library::addDocument(DocType t, const string &title, const string &author,
 }
 
 bool Library::addDocument(Document *d) {
-    for (int i = 0; i < _docs_sz; i++)
-        if (d->getTitle() == _docs[i]->getTitle())
+    for (auto *a:_docs)
+        if (d->getTitle() == a->getTitle())
             return false;
-
-    _docs[_docs_sz++] = d;
+    _docs.push_back(d);
+    _docs_sz++;
     return true;
 }
 
 bool Library::delDocument(const string &title) {
     int index = -1;
-    for (int i = 0; i < _docs_sz; i++)
-        if (_docs[i]->getTitle() == title) {
+    int i = 0;
+    for (auto *a : _docs) {
+        if (a->getTitle() == title) {
             index = i;
             break;
         }
+        i++;
+    }
 
     if (index != -1) {
-
-        for (int i = index + 1; i < _docs_sz; i++)
-            _docs[i - 1] = _docs[i];
+        _docs.erase(_docs.begin() + index);
         _docs_sz--;
         return true;
     }
@@ -172,24 +173,24 @@ bool Library::delDocument(const string &title) {
 int Library::countDocumentOfType(DocType t) {
     int res = 0;
 
-    for (int i = 0; i < _docs_sz; i++)
-        if (_docs[i]->getDocType() == t)
+    for (auto *a : _docs)
+        if (a->getDocType() == t)
             res++;
 
     return res;
 }
 
 Document *Library::searchDocument(const string &title) {
-    for (int i = 0; i < _docs_sz; i++)
-        if (_docs[i]->getTitle()== title)
-            return _docs[i];
+    for (auto *a : _docs)
+        if (a->getTitle()== title)
+            return a;
 
-    return NULL;
+    return nullptr;
 }
 
 void Library::print() {
-    for (int i = 0; i < _docs_sz; i++)
-        _docs[i]->print();
+    for (auto *a : _docs)
+        a->print();
 }
 
 bool Library::borrowDoc(const string &title) {
@@ -214,8 +215,7 @@ bool Library::dumpCSV(const string &filename) {
     if (!fd.is_open() )
         return false;
 
-    for (int i = 0; i < _docs_sz; i++) {
-        Document *d = _docs[i];
+    for (auto *d : _docs) {
         switch (d->getDocType()) {
             case DOC_NOVEL: {
                 Novel *n = dynamic_cast<Novel *>(d);
@@ -232,7 +232,6 @@ bool Library::dumpCSV(const string &filename) {
             case DOC_MAGAZINE: {
                 Magazine *m = dynamic_cast<Magazine *>(d);
                 fd<<"magazine,"<<m->getTitle()<<",,"<<m->getIssue()<<","<<m->getYear()<<","<<m->getQuantity()<<endl;
-
                 break;
             }
 

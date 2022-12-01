@@ -16,13 +16,13 @@ using namespace std;
 
 
 void Document::updateTitle(const string &newTitle) {
-    _title.erase();
+    _title.clear();
     _title = newTitle;
 }
 
 void Document::updateYear(int newYear) { _year = newYear; }
 void Document::updateQuantity(int newQuantity) { _quantity = newQuantity; }
-string &Document::getTitle() { return _title; }
+string Document::getTitle() { return _title; }
 int Document::getYear() { return _year; }
 int Document::getQuantity() { return _quantity; }
 
@@ -44,8 +44,8 @@ Novel::Novel(const string &title, const string &author, int year, int quantity):
 }
 
 Novel::~Novel() {
-    _author.erase();
-    _title.erase();
+    _author.clear();
+    _title.clear();
 }
 
 DocType Novel::getDocType() { return DOC_NOVEL; }
@@ -56,13 +56,13 @@ void Novel::print() {
 }
 
 void Novel::updateAuthor(const string &newAuthor) {
-    _author.erase();
+    _author.clear();
     _author = newAuthor;
 
 
 }
 
-string &Novel::getAuthor() { return _author; }
+string Novel::getAuthor() { return _author; }
 
 Comic::Comic(const string &title, const string &author, int issue, int year,
              int quantity):_author(author),_issue(issue) {
@@ -74,8 +74,8 @@ Comic::Comic(const string &title, const string &author, int issue, int year,
 }
 
 Comic::~Comic() {
-    _author.erase();
-    _title.erase();
+    _author.clear();
+    _title.clear();
 }
 
 DocType Comic::getDocType() { return DOC_COMIC; }
@@ -85,13 +85,13 @@ void Comic::print() {
 
 }
 void Comic::updateAuthor(const string &newAuthor) {
-    _author.erase();
+    _author.clear();
     _author = newAuthor;
 
 }
 
 void Comic::updateIssue(int newIssue) { _issue = newIssue; }
-string &Comic::getAuthor() { return _author; }
+string Comic::getAuthor() { return _author; }
 int Comic::getIssue() { return _issue; }
 
 Magazine::Magazine(const string &title, int issue, int year, int quantity):_issue(issue) {
@@ -103,7 +103,7 @@ Magazine::Magazine(const string &title, int issue, int year, int quantity):_issu
 }
 
 Magazine::~Magazine() {
-    _title.erase(); }
+    _title.clear(); }
 
 DocType Magazine::getDocType() { return DOC_MAGAZINE; }
 
@@ -143,7 +143,7 @@ bool Library::addDocument(DocType t, const string &title, const string &author,
 
 bool Library::addDocument(Document *d) {
     for (int i = 0; i < _docs_sz; i++)
-        if (_docs[i]->getTitle()== d->getTitle())
+        if (d->getTitle() == _docs[i]->getTitle())
             return false;
 
     _docs[_docs_sz++] = d;
@@ -153,7 +153,7 @@ bool Library::addDocument(Document *d) {
 bool Library::delDocument(const string &title) {
     int index = -1;
     for (int i = 0; i < _docs_sz; i++)
-        if (_docs[i]->getTitle()== title) {
+        if (_docs[i]->getTitle() == title) {
             index = i;
             break;
         }

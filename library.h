@@ -25,7 +25,7 @@ public:
   void updateTitle(const string &newTitle);
   void updateYear(int newYear);
   void updateQuantity(int newQuantity);
-  string &getTitle();
+  string getTitle();
   int getYear();
   int getQuantity();
 
@@ -53,7 +53,7 @@ public:
 
   /* getters and setters */
   void updateAuthor(const string &newAuthor);
-  string &getAuthor();
+  string getAuthor();
 
 private:
   /* In addition to the base Document's attributes, a novel has an author */
@@ -71,7 +71,7 @@ public:
   /* getters, setters */
   void updateAuthor(const string &newAuthor);
   void updateIssue(int newIssue);
-  string &getAuthor();
+  string getAuthor();
   int getIssue();
 
 private:

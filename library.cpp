@@ -36,9 +36,8 @@ bool Document::borrowDoc() {
 
 void Document::returnDoc() { _quantity++; }
 
-Novel::Novel(const string &title, const string &author, int year, int quantity) {
+Novel::Novel(const string &title, const string &author, int year, int quantity):_author(author) {
     _title = title;
-    _author = author;
 
     _year = year;
     _quantity = quantity;
@@ -66,12 +65,12 @@ void Novel::updateAuthor(const string &newAuthor) {
 string &Novel::getAuthor() { return _author; }
 
 Comic::Comic(const string &title, const string &author, int issue, int year,
-             int quantity) {
+             int quantity):_author(author),_issue(issue) {
     _title = title;
-    _author = author;
+
     _year = year;
     _quantity = quantity;
-    _issue = issue;
+
 }
 
 Comic::~Comic() {
@@ -95,12 +94,12 @@ void Comic::updateIssue(int newIssue) { _issue = newIssue; }
 string &Comic::getAuthor() { return _author; }
 int Comic::getIssue() { return _issue; }
 
-Magazine::Magazine(const string &title, int issue, int year, int quantity) {
+Magazine::Magazine(const string &title, int issue, int year, int quantity):_issue(issue) {
     _title = title;
 
     _year = year;
     _quantity = quantity;
-    _issue = issue;
+
 }
 
 Magazine::~Magazine() {
@@ -115,11 +114,11 @@ void Magazine::print() {
 void Magazine::updateIssue(int newIssue) { _issue = newIssue; }
 int Magazine::getIssue() { return _issue; }
 
-Library::Library() { _docs_sz = 0; };
+Library::Library() : _docs_sz(0){}
 
 bool Library::addDocument(DocType t, const string &title, const string &author,
                          int issue, int year, int quantity) {
-    Document *d;
+    Document *d = nullptr;
     switch (t) {
         case DOC_NOVEL: {
             d = (Document *)new Novel(title, author, year, quantity);
@@ -160,7 +159,7 @@ bool Library::delDocument(const string &title) {
         }
 
     if (index != -1) {
-        free(_docs[index]);
+
         for (int i = index + 1; i < _docs_sz; i++)
             _docs[i - 1] = _docs[i];
         _docs_sz--;
@@ -219,19 +218,19 @@ bool Library::dumpCSV(const string &filename) {
         Document *d = _docs[i];
         switch (d->getDocType()) {
             case DOC_NOVEL: {
-                Novel *n = (Novel *)d;
+                Novel *n = dynamic_cast<Novel *>(d);
                 fd<< "novel,"<<n->getTitle()<<","<<n->getAuthor()<<",,"<<n->getYear()<<","<<n->getQuantity()<<endl;
                 break;
             }
 
             case DOC_COMIC: {
-                Comic *c = (Comic *)d;
+                Comic *c = dynamic_cast<Comic *>(d);
                 fd<<"comic,"<<c->getTitle()<<","<<c->getAuthor()<<","<<c->getIssue()<<","<<c->getYear()<<","<<c->getQuantity()<<endl;
                 break;
             }
 
             case DOC_MAGAZINE: {
-                Magazine *m = (Magazine *)d;
+                Magazine *m = dynamic_cast<Magazine *>(d);
                 fd<<"magazine,"<<m->getTitle()<<",,"<<m->getIssue()<<","<<m->getYear()<<","<<m->getQuantity()<<endl;
 
                 break;

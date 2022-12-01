@@ -137,6 +137,6 @@ public:
 
 private:
   /* Holds all documents in the library */
-  Document *_docs[32 * 1024];
+  Document *_docs[32 * 1024]{};
   int _docs_sz;
 };

@@ -1,16 +1,9 @@
 #include "library.h"
 
-#include <fcntl.h>
-#include <cstdio>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 using namespace std;
 
@@ -36,7 +29,7 @@ bool Document::borrowDoc() {
 
 void Document::returnDoc() { _quantity++; }
 
-Novel::Novel(const string &title, const string &author, int year, int quantity):_author(author) {
+Novel::Novel(const string &title, string author, int year, int quantity):_author(std::move(author)) {
     _title = title;
 
     _year = year;
@@ -64,8 +57,8 @@ void Novel::updateAuthor(const string &newAuthor) {
 
 string Novel::getAuthor() { return _author; }
 
-Comic::Comic(const string &title, const string &author, int issue, int year,
-             int quantity):_author(author),_issue(issue) {
+Comic::Comic(const string &title, string author, int issue, int year,
+             int quantity):_author(std::move(author)),_issue(issue) {
     _title = title;
 
     _year = year;
@@ -118,34 +111,34 @@ Library::Library() : _docs_sz(0){}
 
 bool Library::addDocument(DocType t, const string &title, const string &author,
                          int issue, int year, int quantity) {
-    Document *d = nullptr;
+    shared_ptr<Document> doc;
     switch (t) {
         case DOC_NOVEL: {
-            d = (Document *)new Novel(title, author, year, quantity);
+            doc = make_shared<Novel>(title, author, year, quantity);
             break;
         }
 
         case DOC_COMIC: {
-            d = (Document *)new Comic(title, author, issue, year, quantity);
+            doc = make_shared<Comic>(title, author, issue, year, quantity);
             break;
         }
 
         case DOC_MAGAZINE: {
-            d = (Document *)new Magazine(title, issue, year, quantity);
+            doc = make_shared<Magazine>(title, issue, year, quantity);
             break;
         }
 
         default:
             return false;
     }
-    return addDocument(d);
+    return addDocument(doc);
 }
 
-bool Library::addDocument(Document *d) {
-    for (auto *a:_docs)
-        if (d->getTitle() == a->getTitle())
+bool Library::addDocument(shared_ptr<Document> doc) {
+    for (const shared_ptr<Document>& a:_docs)
+        if (doc->getTitle() == a->getTitle())
             return false;
-    _docs.push_back(d);
+    _docs.push_back(doc);
     _docs_sz++;
     return true;
 }
@@ -153,7 +146,7 @@ bool Library::addDocument(Document *d) {
 bool Library::delDocument(const string &title) {
     int index = -1;
     int i = 0;
-    for (auto *a : _docs) {
+    for (const shared_ptr<Document>& a:_docs) {
         if (a->getTitle() == title) {
             index = i;
             break;
@@ -173,15 +166,15 @@ bool Library::delDocument(const string &title) {
 int Library::countDocumentOfType(DocType t) {
     int res = 0;
 
-    for (auto *a : _docs)
+    for (const shared_ptr<Document>& a:_docs)
         if (a->getDocType() == t)
             res++;
 
     return res;
 }
 
-Document *Library::searchDocument(const string &title) {
-    for (auto *a : _docs)
+shared_ptr<Document> Library::searchDocument(const string &title) {
+    for (const shared_ptr<Document>& a:_docs)
         if (a->getTitle()== title)
             return a;
 
@@ -189,19 +182,19 @@ Document *Library::searchDocument(const string &title) {
 }
 
 void Library::print() {
-    for (auto *a : _docs)
+    for (const shared_ptr<Document>& a:_docs)
         a->print();
 }
 
 bool Library::borrowDoc(const string &title) {
-    Document *d = searchDocument(title);
+    shared_ptr<Document> d = searchDocument(title);
     if (d)
         return d->borrowDoc();
     return false;
 }
 
 bool Library::returnDoc(const string &title) {
-    Document *d = searchDocument(title);
+    shared_ptr<Document> d = searchDocument(title);
     if (d) {
         d->returnDoc();
         return true;
@@ -215,22 +208,22 @@ bool Library::dumpCSV(const string &filename) {
     if (!fd.is_open() )
         return false;
 
-    for (auto *d : _docs) {
+    for (shared_ptr< Document> d : _docs) {
         switch (d->getDocType()) {
             case DOC_NOVEL: {
-                Novel *n = dynamic_cast<Novel *>(d);
+                Novel *n = dynamic_cast<Novel *>(d.get());
                 fd<< "novel,"<<n->getTitle()<<","<<n->getAuthor()<<",,"<<n->getYear()<<","<<n->getQuantity()<<endl;
                 break;
             }
 
             case DOC_COMIC: {
-                Comic *c = dynamic_cast<Comic *>(d);
+                Comic *c = dynamic_cast<Comic *>(d.get());
                 fd<<"comic,"<<c->getTitle()<<","<<c->getAuthor()<<","<<c->getIssue()<<","<<c->getYear()<<","<<c->getQuantity()<<endl;
                 break;
             }
 
             case DOC_MAGAZINE: {
-                Magazine *m = dynamic_cast<Magazine *>(d);
+                Magazine *m = dynamic_cast<Magazine *>(d.get());
                 fd<<"magazine,"<<m->getTitle()<<",,"<<m->getIssue()<<","<<m->getYear()<<","<<m->getQuantity()<<endl;
                 break;
             }

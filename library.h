@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <memory>
 
 using namespace std;
 
@@ -48,7 +49,7 @@ protected:
 
 class Novel : public Document {
 public:
-  Novel(const string &title, const string &author, int year, int quantity);
+  Novel(const string &title, string author, int year, int quantity);
   ~Novel();
   DocType getDocType() override;
   void print() override;
@@ -64,7 +65,7 @@ private:
 
 class Comic : public Document {
 public:
-  Comic(const string &title, const string &author, int issue, int year,
+  Comic(const string &title, string author, int issue, int year,
         int quantity);
   ~Comic();
   DocType getDocType();
@@ -121,13 +122,13 @@ public:
    * a title identifies uniquely a document in the library, i.e. there cannot
    * be 2 documents with the same title. Returns a pointer to the document if
    * found, NULL otherwise */
-  Document *searchDocument(const string &title);
+  shared_ptr<Document>searchDocument(const string &title);
 
   /* Add/delete a document to/from the library, return 1 on success and
    * 0 on failure.  */
   bool addDocument(DocType t, const string &title, const string &author, int issue,
                   int year, int quantity);
-  bool addDocument(Document *d);
+  bool addDocument(shared_ptr<Document> doc);
   bool delDocument(const string &title);
 
   /* Count the number of document of a given type present in the library */
@@ -140,6 +141,6 @@ public:
 private:
   /* Holds all documents in the library */
 //  Document *_docs[32 * 1024]{};
-  std::vector<Document *> _docs;
-  int _docs_sz;
+  vector<shared_ptr<Document>> _docs;
+  int _docs_sz{};
 };
